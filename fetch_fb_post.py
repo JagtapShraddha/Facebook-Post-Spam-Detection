@@ -23,10 +23,6 @@ lemmatizer = nltk.stem.WordNetLemmatizer()
 def get_post_text(url):
     options = Options()
     options.add_argument("--headless")
-    options.add_argument("--lang=en-US")
-    options.add_argument("--incognito")
-    temp_profile = tempfile.mkdtemp()
-    options.add_argument(f"--user-data-dir={temp_profile}")
 
     service = Service("/home/shraddha/AI-Content-Extractor/chromedriver")
     driver = webdriver.Chrome(service=service, options=options)
@@ -35,22 +31,21 @@ def get_post_text(url):
         driver.get(url)
         wait = WebDriverWait(driver, 15)
 
-        # Wait for post content div to load
+        
         wait.until(EC.presence_of_element_located((By.XPATH, "//div[@dir='auto']")))
 
-        # Try to find and click "See more" button if present
+       
         try:
             see_more_button = wait.until(EC.element_to_be_clickable(
                 (By.XPATH, "//div[contains(text(), 'See more') or contains(text(), 'see more')]")
             ))
             see_more_button.click()
-            # Wait briefly for the content to expand
+           
             wait.until(EC.staleness_of(see_more_button))
         except:
-            # No "See more" button found, continue
+          
             pass
 
-        # After expanding, get the page source and parse
         soup = BeautifulSoup(driver.page_source, "html.parser")
         post = soup.find("div", {"dir": "auto", "style": "text-align: start;"}) or soup.find("div", {"dir": "auto"})
 
